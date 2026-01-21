@@ -18,12 +18,12 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('avatar')->nullable();
             $table->string('phone')->nullable();
-            $table->enum('gender', ['L', 'P'])->nullable();
+            $table->enum('gender', ['male', 'female'])->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('is_active', [0, 1])->default(0);
-            $table->uuid('type_daftar')->nullable();
+            $table->uuid('registration_type')->nullable();
             $table->timestamp('last_activity')->nullable();
             $table->rememberToken();
             $table->timestamps();
