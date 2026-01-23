@@ -1,49 +1,99 @@
 <x-guest-layout>
-    {{-- <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    @push('auth-js')
+    <script>
+        // Handle Login Form Submit
+        $('#loginForm').on('submit', function(e) {
+            e.preventDefault();
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+            // Disable button
+            const $btnLogin = $('#btnLogin');
+            $btnLogin.prop('disabled', true);
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block w-full mt-1" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+            // Show loading modal
+            showLoading();
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+            // Clear previous alerts
+            $('#alertContainer').html('');
 
-            <x-text-input id="password" class="block w-full mt-1"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+            // Get form data
+            const formData = {
+                identitas: $('#identitas').val()
+                , password: $('#password').val()
+                , remember: $('#remember').is(':checked') ? 1 : 0
+                , _token: $('input[name="_token"]').val()
+            };
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+            // AJAX Request
+            $.ajax({
+                url: '{{ route("login") }}'
+                , type: 'POST'
+                , data: formData
+                , dataType: 'json'
+                , success: function(response) {
+                    // Hide loading
+                    hideLoading();
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="text-indigo-600 border-gray-300 rounded shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="text-sm text-gray-600 ms-2">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+                    // Show success message
+                    showAlert(response.message || 'Login berhasil! Mengalihkan...', 'success');
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="text-sm text-gray-600 underline rounded-md hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
+                    // Redirect after 1 second
+                    setTimeout(function() {
+                        window.location.href = response.redirect || '/dashboard';
+                    }, 1000);
+                }
+                , error: function(xhr) {
+                    // Hide loading
+                    hideLoading();
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form> --}}
+                    // Enable button
+                    $btnLogin.prop('disabled', false);
+
+                    // Handle errors
+                    if (xhr.status === 422) {
+                        // Validation errors
+                        const errors = xhr.responseJSON.errors;
+                        let errorMessage = '';
+
+                        if (errors.identitas) {
+                            errorMessage = errors.identitas[0];
+                        } else if (errors.password) {
+                            errorMessage = errors.password[0];
+                        } else {
+                            errorMessage = 'Terjadi kesalahan validasi.';
+                        }
+
+                        showAlert(errorMessage, 'danger');
+                    } else if (xhr.status === 401) {
+                        // Unauthorized (wrong credentials)
+                        showAlert(xhr.responseJSON.message || 'Username atau password salah!', 'danger');
+                    } else if (xhr.status === 403) {
+                        // Forbidden (inactive user)
+                        showAlert(xhr.responseJSON.message || 'Akun Anda tidak aktif!', 'danger');
+                    } else {
+                        // Other errors
+                        showAlert('Terjadi kesalahan. Silakan coba lagi.', 'danger');
+                    }
+                }
+            });
+        });
+
+        // Interactive Bubbles - Mouse Movement Effect
+        document.addEventListener("mousemove", (e) => {
+            const bubbles = document.querySelectorAll(".bubble");
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+
+            bubbles.forEach((bubble, index) => {
+                const speed = (index + 1) * 0.5;
+                const x = (mouseX - 0.5) * speed * 30;
+                const y = (mouseY - 0.5) * speed * 30;
+
+                bubble.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+
+    </script>
+    @endpush
 
     <div class="login-card" data-aos="fade-up" data-aos-duration="1000">
         <!-- Logo -->
@@ -59,14 +109,17 @@
             <p>Silakan masuk ke akun Anda</p>
         </div>
 
+        <x-auth-session-status class="mb-4" :status="session('status')" />
+
         <!-- Login Form -->
-        <form action="#" method="POST">
+        <form id="loginForm"  method="POST">
+            @csrf
+
             <!-- Username -->
             <div class="form-group" data-aos="fade-up" data-aos-delay="400" data-aos-duration="800">
-                <label for="username" class="form-label">Username</label>
+                <label for="identitas" class="form-label">Username</label>
                 <div class="input-wrapper">
-                    <input type="text" class="form-control" id="username" name="username"
-                        placeholder="Masukkan username Anda" required autocomplete="username" />
+                    <input type="text" class="form-control" id="identitas" name="identitas" placeholder="Masukkan username Anda" required autocomplete="username" />
                     <i class="bi bi-person input-icon"></i>
                 </div>
             </div>
@@ -75,11 +128,9 @@
             <div class="form-group" data-aos="fade-up" data-aos-delay="500" data-aos-duration="800">
                 <label for="password" class="form-label">Password</label>
                 <div class="input-wrapper">
-                    <input type="password" class="form-control" id="password" name="password"
-                        placeholder="Masukkan password Anda" required autocomplete="current-password" />
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Masukkan password Anda" required autocomplete="current-password" />
                     <i class="bi bi-lock input-icon"></i>
-                    <button type="button" class="password-toggle" onclick="togglePassword()"
-                        aria-label="Toggle password visibility">
+                    <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">
                         <i class="bi bi-eye" id="toggleIcon"></i>
                     </button>
                 </div>
@@ -93,7 +144,11 @@
                         Ingat saya
                     </label>
                 </div>
-                <a href="#" class="forgot-link">Lupa password?</a>
+
+                @if (Route::has('password.request'))
+                <a href="{{ route('password.request') }}" class="forgot-link">Lupa password?</a>
+                @endif
+
             </div>
 
             <!-- Login Button -->
