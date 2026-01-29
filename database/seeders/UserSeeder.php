@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
             'password'          => Hash::make('123'),
             'remember_token'    => Str::random(20),
-            'is_active'         => true,
+            'is_active'         => '1',
             'registration_type' => 'manual',
         ];
 

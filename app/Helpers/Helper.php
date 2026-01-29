@@ -1,10 +1,59 @@
 <?php
 
-namespace App\Helpers;
-
 use App\Models\Shield\Permission;
+use App\Repositories\MenuRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
+
+if (!function_exists('isMenuActive')) {
+    /**
+     * Cek apakah menu sedang aktif
+     *
+     * @param string $url
+     * @return bool
+     */
+    function isMenuActive($url)
+    {
+        if (!$url) {
+            return false;
+        }
+
+        $currentUrl = request()->path();
+        $currentRoute = request()->route()?->getName();
+
+        // Cek apakah URL adalah route name
+        if (Route::has($url)) {
+            return $currentRoute === $url;
+        }
+
+        // Cek apakah URL match dengan current path
+        return str_starts_with($currentUrl, trim($url, '/'));
+    }
+}
+
+if (!function_exists('getMenuUrl')) {
+    /**
+     * Get URL dari menu (support route name & path)
+     *
+     * @param string $url
+     * @return string
+     */
+    function getMenuUrl($url)
+    {
+        if (!$url) {
+            return '#';
+        }
+
+        // Cek apakah URL adalah route name
+        if (Route::has($url)) {
+            return route($url);
+        }
+
+        // Return URL biasa
+        return url($url);
+    }
+}
 
 if (!function_exists('urlMenu')) {
     /**
