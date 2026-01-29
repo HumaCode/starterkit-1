@@ -117,6 +117,10 @@
     border: 1px solid var(--border-color);
 }
 
+.welcome-section > h1 {
+    color: var(--text-primary);
+}
+
 .chart-header {
     display: flex;
     align-items: center;

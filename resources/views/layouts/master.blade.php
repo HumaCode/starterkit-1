@@ -25,10 +25,15 @@
         {{ $slot }}
     </main>
 
-    <!-- ============================================ -->
-    <!-- MODALS - Each modal has its own overlay -->
-    <!-- ============================================ -->
+    <!-- ==================== FLOATING BUTTON ==================== -->
+    <button class="float-btn" id="floatBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <i class="bi bi-arrow-up"></i>
+    </button>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
     <!-- SCRIPTS -->
     <script src="{{ asset('assets/backend/js/modal.js') }}"></script>

@@ -6,8 +6,14 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    private $title         = 'Dashboard';
+
     public function index()
     {
-        return view('pages.dashboard.dashboard-administrator');
+        $data = [
+            'title' => $this->title,
+        ];
+
+        return view('pages.dashboard.dashboard-administrator', $data);
     }
 }

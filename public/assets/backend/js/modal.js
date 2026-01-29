@@ -6,6 +6,12 @@ const toggleBtn = document.getElementById('toggleSidebar');
 const mobileOverlay = document.getElementById('mobileOverlay');
 const themeToggle = document.getElementById('themeToggle');
 const themeIcon = document.getElementById('themeIcon');
+const floatBtn = document.getElementById('floatBtn');
+
+  // ========== FLOATING BUTTON ==========
+window.addEventListener('scroll', () => {
+    floatBtn.classList.toggle('show', window.scrollY > 300);
+});
 
 toggleBtn.addEventListener('click', function() {
     if (window.innerWidth <= 992) {

@@ -1,7 +1,7 @@
 <header class="main-header" id="mainHeader">
     <div class="header-left">
         <button class="toggle-sidebar" id="toggleSidebar"><i class="bi bi-list"></i></button>
-        <span class="page-title">Dashboard</span>
+        {{--  <span class="page-title">{{ $title }}</span>  --}}
     </div>
     <div class="header-right">
         <button class="header-btn" id="themeToggle"><i class="bi bi-sun" id="themeIcon"></i></button>
